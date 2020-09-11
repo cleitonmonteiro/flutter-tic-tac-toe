@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:tic_tac_toe/providers/game.dart';
 import 'package:tic_tac_toe/ui/widgets/row_button.dart';
+import 'package:tic_tac_toe/util/styles.dart';
 
 class GamePage extends StatelessWidget {
   final String title;
@@ -25,7 +26,6 @@ class GamePage extends StatelessWidget {
     double spaceBetween = (dividerSize - 2 * dividerHeight) / 3;
 
     return Scaffold(
-      backgroundColor: Color(0xFF14BDAC),
       body: SafeArea(
         child: Stack(
           children: [
@@ -75,11 +75,7 @@ class GamePage extends StatelessWidget {
                     padding: padding,
                     child: Text(
                       messageText,
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 30.0,
-                        fontWeight: FontWeight.bold,
-                      ),
+                      style: kTextStyle,
                     ),
                   ),
                 );

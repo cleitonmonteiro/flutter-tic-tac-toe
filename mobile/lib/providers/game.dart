@@ -33,7 +33,6 @@ class GameProvider extends ChangeNotifier {
 
   void _setup(data) {
     _currentPlayer = Player.fromJson(data);
-    _status = GameStatus.waitingOpponent;
     notifyListeners();
   }
 
@@ -70,5 +69,11 @@ class GameProvider extends ChangeNotifier {
 
   void move(Move move) {
     _socket.emit(SocketEvents.move, move.toJson());
+  }
+
+  void ready() {
+    _socket.emit(SocketEvents.ready);
+    _status = GameStatus.waitingOpponent;
+    notifyListeners();
   }
 }

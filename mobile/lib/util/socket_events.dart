@@ -7,4 +7,5 @@ class SocketEvents {
   static const disconnect = 'disconnect';
 
   static const move = 'move-player';
+  static const ready = 'ready';
 }

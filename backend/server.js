@@ -10,7 +10,7 @@ const io = socketio.listen(server);
 
 const port = 3000;
 
-const board = [
+let board = [
   ["1", "2", "3"],
   ["4", "5", "6"],
   ["7", "8", "9"],
@@ -20,6 +20,21 @@ const players = [];
 let firstPlayer = true;
 let nextPlayerId = true;
 let moveNumber = 0;
+let playersReady = 0;
+
+function restartGame() {
+  board = board = [
+    ["1", "2", "3"],
+    ["4", "5", "6"],
+    ["7", "8", "9"],
+  ];
+
+  firstPlayer = true;
+  nextPlayerId = true;
+  moveNumber = 0;
+  playersReady = 0;
+  console.log("[game]: restar", { board, playersReady, moveNumber });
+}
 
 function addPlayer(playerId) {
   const symbol = firstPlayer ? "X" : "O";
@@ -29,13 +44,21 @@ function addPlayer(playerId) {
 
   players[index] = newPlayer;
 
-  if (!firstPlayer) {
-    io.emit("update-board", { board, nextPlayerId: players[0].id });
-  }
+  // if (!firstPlayer) {
+  //   io.emit("update-board", { board, nextPlayerId: players[0].id });
+  // }
 
   firstPlayer = !firstPlayer;
 
   return newPlayer;
+}
+
+function ready(playerId) {
+  playersReady++;
+  if (playersReady == 2) {
+    io.emit("start", { board, nextPlayerId: players[0].id });
+  }
+  console.log("[game] ready", { playersReady });
 }
 
 function move(row, column, playerId) {
@@ -55,22 +78,26 @@ function move(row, column, playerId) {
   if (victory) {
     io.emit("winner", { playerId });
     console.log("[io.emit] winner: ", { playerId });
+    restartGame();
   } else if (checkDraw(moveNumber)) {
     io.emit("draw");
     console.log("[io.emit] draw");
+    restartGame();
   } else {
     nextPlayerId = !nextPlayerId;
   }
 }
 
 io.on("connection", (socket) => {
+  let playerNumber = firstPlayer ? 1 : 2;
+
   const playerId = socket.id;
   const newPlayer = addPlayer(playerId);
 
   socket.emit("setup", newPlayer);
   console.log("[io.emit] setup");
 
-  console.log(`> Player connected: ${playerId}`);
+  console.log(`[game] ${playerNumber} Player connected: ${playerId}`);
 
   socket.on("disconnect", () => {
     console.log(`> Player disconnected: ${playerId}`);
@@ -80,6 +107,11 @@ io.on("connection", (socket) => {
   socket.on("move-player", (data) => {
     console.log("[io.on] move: ", data);
     move(data.row, data.column, playerId);
+  });
+
+  socket.on("ready", (_) => {
+    console.log("[io.on] ready");
+    ready(playerId);
   });
 });
 
