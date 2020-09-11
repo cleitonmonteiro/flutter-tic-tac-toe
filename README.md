@@ -1,4 +1,4 @@
-# Task Now
+# Tic-tac-toe
 
 Simple Tic-tac-toe app with Flutter using [Socke.IO](https://socket.io/).
 
